@@ -21,7 +21,15 @@ FOREIGN KEY (departmentID)  REFERENCES department(departmentID),
 
 CREATE TABLE IF NOT EXISTS department (
 `departmentID` INT PRIMARY KEY,
-`department_name` VARCHAR(100) NOT NULL,
+`department_name` VARCHAR(100) NOT NULL;
+)
+
+CREATE TABLE IF NOT EXISTS subjects (
+`subject_id` INT PRIMARY KEY,
+`subject_name` VARCHAR(50) NOT NULL,
+`subject_code` VARCHAR(50) NOT NULL,
+`department_id` INT NOT NULL,
+FOREIGN KEY (departmentID)  REFERENCES department(departmentID);
 )
 
 
