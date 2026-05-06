@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS students (
 `middle_name` VARCHAR(50) NOT NULL,
 `last_name` VARCHAR(50) NOT NULL,
 `department_id` INT NOT NULL,
+`course_id` INT NOT NULL,
 `year_level` VARCHAR(20) NOT NULL,
 `date_of_birth` DATE NOT NULL,
 `email` VARCHAR(100) UNIQUE NOT NULL,
@@ -29,7 +30,8 @@ CREATE TABLE IF NOT EXISTS students (
 `admission_date` DATE NOT NULL,
 `status` ENUM('Active', 'Graduated', 'Inactive') NOT NULL,
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-FOREIGN KEY (department_id) REFERENCES department(department_id)
+FOREIGN KEY (course_id) REFERENCES course(course_id)
+FOREIGN KEY (department_id) REFERENCES course(department_id)
 );
 
 CREATE TABLE IF NOT EXISTS staff (
@@ -118,14 +120,15 @@ FOREIGN KEY (class_id) REFERENCES class(class_id),
 UNIQUE KEY unique_enrollment (student_id, class_id)
 );
 
-
-
 CREATE TABLE IF NOT EXISTS admin (
 `id` INT AUTO_INCREMENT PRIMARY key,
 `username` VARCHAR(50) NOT NULL,
 `password` VARCHAR(255) NOT NULL,
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE admin 
+ADD COLUMN name VARCHAR(100) NOT NULL AFTER `id`;
 
 
 
