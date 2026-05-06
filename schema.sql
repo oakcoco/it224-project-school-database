@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS students (
 `admission_date` DATE NOT NULL,
 `status` ENUM('Active', 'Graduated', 'Inactive') NOT NULL,
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-FOREIGN KEY (course_id) REFERENCES course(course_id)
+FOREIGN KEY (course_id) REFERENCES course(course_id),
 FOREIGN KEY (department_id) REFERENCES course(department_id)
 );
 
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS subjects (
 `course_id` INT NOT NULL,
 `department_id` INT NOT NULL,
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-FOREIGN KEY (department_id)  REFERENCES course(department_id)
+FOREIGN KEY (department_id)  REFERENCES course(department_id),
 FOREIGN KEY (course_id)  REFERENCES course(course_id)
 );
 
@@ -115,7 +115,7 @@ class_id INT NOT NULL,
 enrollment_date DATE NOT NULL,
 status ENUM('Enrolled', 'Dropped', 'Completed', 'Failed') NOT NULL,
 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-FOREIGN KEY (student_id) REFERENCES students(id),
+FOREIGN KEY (student_id) REFERENCES students(student_id),
 FOREIGN KEY (class_id) REFERENCES class(class_id),
 UNIQUE KEY unique_enrollment (student_id, class_id)
 );
@@ -126,9 +126,4 @@ CREATE TABLE IF NOT EXISTS admin (
 `password` VARCHAR(255) NOT NULL,
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-ALTER TABLE admin 
-ADD COLUMN name VARCHAR(100) NOT NULL AFTER `id`;
-
-
 
