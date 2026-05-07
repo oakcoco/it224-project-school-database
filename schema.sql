@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS year_status (
 `year_status_name` ENUM('First Year', 'Second Year', 'Third Year', 'Fourth Year', 'Fifth Year',
 'Masteral', 'Doctorate') NOT NULL,
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+);
 
 CREATE TABLE IF NOT EXISTS institute (
 `institute_id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -37,8 +37,8 @@ CREATE TABLE IF NOT EXISTS students (
 `admission_date` DATE NOT NULL,
 `status` ENUM('Active', 'Graduated', 'Inactive') NOT NULL,
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-FOREIGN KEY (course_id) REFERENCES course(course_id)
-FOREIGN KEY (institute_id) REFERENCES course(institute_id)
+FOREIGN KEY (course_id) REFERENCES course(course_id),
+FOREIGN KEY (institute_id) REFERENCES institute(institute_id)
 );
 
 CREATE TABLE IF NOT EXISTS staff (
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS staff (
 `middle_name` VARCHAR(50) NOT NULL,
 `last_name` VARCHAR(50) NOT NULL,
 `institute_id` INT NOT NULL,
-`occupation` ENUM('Teaching', 'Non-Teaching'),
+`occupation` ENUM('Teaching', 'Non-Teaching') NOT NULL,
 `date_of_birth` DATE NOT NULL,
 `phone_number` VARCHAR(20) NULL,
 `email` VARCHAR(100) UNIQUE NOT NULL,
@@ -67,8 +67,8 @@ CREATE TABLE IF NOT EXISTS subjects (
 `course_id` INT NOT NULL,
 `institute_id` INT NOT NULL,
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-FOREIGN KEY (institute_id)  REFERENCES course(institute_id)
-FOREIGN KEY (course_id)  REFERENCES course(course_id)
+FOREIGN KEY (course_id)  REFERENCES course(course_id),
+FOREIGN KEY (institute_id)  REFERENCES institute(institute_id)
 );
 
 CREATE TABLE IF NOT EXISTS grades (
@@ -77,44 +77,48 @@ CREATE TABLE IF NOT EXISTS grades (
 `subject_id` INT NOT NULL,
 `grade` DECIMAL(3,2) NOT NULL,
 -- grade year will be deleted when altered
-`year_status` VARCHAR(20) NOT NULL,
+`grade_year` INT NOT NULL,
+`year_status_id` INT NOT NULL,
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 FOREIGN KEY (student_id) REFERENCES students(student_id),
 FOREIGN KEY (subject_id) REFERENCES subjects(subject_id),
+FOREIGN KEY (year_status_id) REFERENCES year_status(year_status_id),
 UNIQUE KEY unique_grade (student_id, subject_id, grade_year)
 );
 
 CREATE TABLE IF NOT EXISTS room(
 `room_id` VARCHAR(20) PRIMARY KEY,
-`institute` VARCHAR(100) UNIQUE NOT NULL,
+`institute_id` INT NOT NULL,
 `location` TEXT NULL,
-`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-FOREIGN KEY (institute) REFERENCES institute(institute_id)
-);
-
-CREATE TABLE IF NOT EXISTS class (
-`class_id` INT AUTO_INCREMENT PRIMARY KEY,
-`section_assigned` VARCHAR(50) NOT NULL,
-`subject_id` INT NOT NULL,
-`intructor_id` INT NOT NULL,
-`schedule` VARCHAR(50) NOT NULL,
-`room_id` INT NOT NULL,
-`building_id` INT NOT NULL,
-`course_id` INT NOT NULL, 
-`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-FOREIGN KEY (subject_id) REFERENCES subjects(subject_id),
-FOREIGN KEY (intructor_id) REFERENCES staff(employee_id),
-FOREIGN KEY (room_id) REFERENCES room(room_id)
-FOREIGN KEY (course_id) REFERENCES course(course_id)
+`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+FOREIGN KEY (institute_id) REFERENCES institute(institute_id)
 );
 
 CREATE TABLE IF NOT EXISTS section (
 `section_id` VARCHAR(20) PRIMARY KEY,
 `section_name` VARCHAR(20) NOT NULL,
-`course_id` VARCHAR(50) NOT NULL,
-`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+`course_id` INT NOT NULL,
+`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 FOREIGN KEY (course_id) REFERENCES course(course_id)
-)
+);
+
+CREATE TABLE IF NOT EXISTS class (
+`class_id` INT AUTO_INCREMENT PRIMARY KEY,
+`section_assigned` VARCHAR(20) NOT NULL,
+`subject_id` INT NOT NULL,
+`employee_id` INT NOT NULL,
+`room_id` VARCHAR(20) NOT NULL,
+`course_id` INT NOT NULL, 
+`schedule_day` ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'),
+`start_time` TIME NOT NULL,
+`end_time` TIME NOT NULL,
+`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+FOREIGN KEY (subject_id) REFERENCES subjects(subject_id),
+FOREIGN KEY (employee_id) REFERENCES staff(employee_id),
+FOREIGN KEY (room_id) REFERENCES room(room_id),
+FOREIGN KEY (course_id) REFERENCES course(course_id),
+FOREIGN KEY (section_assigned) REFERENCES section(section_id)
+);
 
 CREATE TABLE IF NOT EXISTS enroll (                                                          
 `enrollment_id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -123,7 +127,7 @@ CREATE TABLE IF NOT EXISTS enroll (
 `enrollment_date` DATE NOT NULL,
 `status` ENUM('Enrolled', 'Dropped', 'Completed', 'Failed') NOT NULL,
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-FOREIGN KEY (student_id) REFERENCES students(id),
+FOREIGN KEY (student_id) REFERENCES students(student_id),
 FOREIGN KEY (class_id) REFERENCES class(class_id),
 UNIQUE KEY unique_enrollment (student_id, class_id)
 );
