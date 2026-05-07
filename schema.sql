@@ -1,17 +1,24 @@
 CREATE DATABASE IF NOT EXISTS seraljon;
 USE seraljon;
 
-CREATE TABLE IF NOT EXISTS department (
-`department_id` INT AUTO_INCREMENT PRIMARY KEY,
-`department_name` VARCHAR(100) NOT NULL,
+CREATE TABLE IF NOT EXISTS year_status (
+`year_status_id` INT AUTO_INCREMENT PRIMARY KEY,
+`year_status_name` ENUM('First Year', 'Second Year', 'Third Year', 'Fourth Year', 'Fifth Year',
+'Masteral', 'Doctorate') NOT NULL,
+`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+
+CREATE TABLE IF NOT EXISTS institute (
+`institute_id` INT AUTO_INCREMENT PRIMARY KEY,
+`institute_name` VARCHAR(100) NOT NULL,
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS course(
 `course_id` INT AUTO_INCREMENT PRIMARY KEY,
 `course_name` VARCHAR(50) UNIQUE NOT NULL,
-`department_id` INT NOT NULL,
-FOREIGN KEY (department_id) REFERENCES department(department_id)
+`institute_id` INT NOT NULL,
+FOREIGN KEY (institute_id) REFERENCES institute(institute_id)
 );
 
 CREATE TABLE IF NOT EXISTS students (
@@ -19,7 +26,7 @@ CREATE TABLE IF NOT EXISTS students (
 `first_name` VARCHAR(50) NOT NULL,
 `middle_name` VARCHAR(50) NOT NULL,
 `last_name` VARCHAR(50) NOT NULL,
-`department_id` INT NOT NULL,
+`institute_id` INT NOT NULL,
 `course_id` INT NOT NULL,
 `year_level` VARCHAR(20) NOT NULL,
 `date_of_birth` DATE NOT NULL,
@@ -31,7 +38,7 @@ CREATE TABLE IF NOT EXISTS students (
 `status` ENUM('Active', 'Graduated', 'Inactive') NOT NULL,
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 FOREIGN KEY (course_id) REFERENCES course(course_id)
-FOREIGN KEY (department_id) REFERENCES course(department_id)
+FOREIGN KEY (institute_id) REFERENCES course(institute_id)
 );
 
 CREATE TABLE IF NOT EXISTS staff (
@@ -39,7 +46,7 @@ CREATE TABLE IF NOT EXISTS staff (
 `first_name` VARCHAR(50) NOT NULL,
 `middle_name` VARCHAR(50) NOT NULL,
 `last_name` VARCHAR(50) NOT NULL,
-`department_id` INT NOT NULL,
+`institute_id` INT NOT NULL,
 `occupation` ENUM('Teaching', 'Non-Teaching'),
 `date_of_birth` DATE NOT NULL,
 `phone_number` VARCHAR(20) NULL,
@@ -50,7 +57,7 @@ CREATE TABLE IF NOT EXISTS staff (
 `employment_date` DATE NOT NULL,
 `status` ENUM('Active', 'Resigned', 'Inactive', 'Retired') NOT NULL,
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-FOREIGN KEY (department_id) REFERENCES department(department_id)
+FOREIGN KEY (institute_id) REFERENCES institute(institute_id)
 );
 
 CREATE TABLE IF NOT EXISTS subjects (
@@ -58,9 +65,9 @@ CREATE TABLE IF NOT EXISTS subjects (
 `subject_name` VARCHAR(50) NOT NULL,
 `subject_code` VARCHAR(50) NOT NULL,
 `course_id` INT NOT NULL,
-`department_id` INT NOT NULL,
+`institute_id` INT NOT NULL,
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-FOREIGN KEY (department_id)  REFERENCES course(department_id)
+FOREIGN KEY (institute_id)  REFERENCES course(institute_id)
 FOREIGN KEY (course_id)  REFERENCES course(course_id)
 );
 
@@ -69,29 +76,20 @@ CREATE TABLE IF NOT EXISTS grades (
 `student_id` INT NOT NULL,
 `subject_id` INT NOT NULL,
 `grade` DECIMAL(3,2) NOT NULL,
-`grade_year` VARCHAR(20) NOT NULL,
+-- grade year will be deleted when altered
+`year_status` VARCHAR(20) NOT NULL,
+`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 FOREIGN KEY (student_id) REFERENCES students(student_id),
 FOREIGN KEY (subject_id) REFERENCES subjects(subject_id),
 UNIQUE KEY unique_grade (student_id, subject_id, grade_year)
 );
 
-CREATE TABLE IF NOT EXISTS building(
-`building_id` INT AUTO_INCREMENT PRIMARY KEY,
-`building name` VARCHAR(100) UNIQUE NOT NULL,
-`location` VARCHAR(255),
+CREATE TABLE IF NOT EXISTS room(
+`room_id` VARCHAR(20) PRIMARY KEY,
+`institute` VARCHAR(100) UNIQUE NOT NULL,
+`location` TEXT NULL,
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS facilities (
-facility_id INT AUTO_INCREMENT PRIMARY KEY,
-facility_name VARCHAR(50) NOT NULL,
-facility_code VARCHAR(50) UNIQUE NOT NULL,
-building_id INT NOT NULL,
-room_name VARCHAR(50) NOT NULL,
-facility_type ENUM('Storage', 'Classroom', 'Office', 'Open Space', 'Other') NOT NULL,
-status ENUM('Available', 'In-Use', 'Maintenance', 'Not Available') NOT NULL,
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-FOREIGN KEY (building_id) REFERENCES building(building_id)
+FOREIGN KEY (institute) REFERENCES institute(institute_id)
 );
 
 CREATE TABLE IF NOT EXISTS class (
@@ -100,21 +98,31 @@ CREATE TABLE IF NOT EXISTS class (
 `subject_id` INT NOT NULL,
 `intructor_id` INT NOT NULL,
 `schedule` VARCHAR(50) NOT NULL,
-`facility_id` INT NOT NULL,
+`room_id` INT NOT NULL,
 `building_id` INT NOT NULL,
+`course_id` INT NOT NULL, 
+`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 FOREIGN KEY (subject_id) REFERENCES subjects(subject_id),
 FOREIGN KEY (intructor_id) REFERENCES staff(employee_id),
-FOREIGN KEY (facility_id) REFERENCES facilities(facility_id),
-FOREIGN KEY (building_id) REFERENCES facilities(building_id)
+FOREIGN KEY (room_id) REFERENCES room(room_id)
+FOREIGN KEY (course_id) REFERENCES course(course_id)
 );
 
+CREATE TABLE IF NOT EXISTS section (
+`section_id` VARCHAR(20) PRIMARY KEY,
+`section_name` VARCHAR(20) NOT NULL,
+`course_id` VARCHAR(50) NOT NULL,
+`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+FOREIGN KEY (course_id) REFERENCES course(course_id)
+)
+
 CREATE TABLE IF NOT EXISTS enroll (                                                          
-enrollment_id INT AUTO_INCREMENT PRIMARY KEY,
-student_id INT NOT NULL,                                                                 
-class_id INT NOT NULL,
-enrollment_date DATE NOT NULL,
-status ENUM('Enrolled', 'Dropped', 'Completed', 'Failed') NOT NULL,
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+`enrollment_id` INT AUTO_INCREMENT PRIMARY KEY,
+`student_id` INT NOT NULL,                                                                 
+`class_id` INT NOT NULL,
+`enrollment_date` DATE NOT NULL,
+`status` ENUM('Enrolled', 'Dropped', 'Completed', 'Failed') NOT NULL,
+`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 FOREIGN KEY (student_id) REFERENCES students(id),
 FOREIGN KEY (class_id) REFERENCES class(class_id),
 UNIQUE KEY unique_enrollment (student_id, class_id)
@@ -127,8 +135,6 @@ CREATE TABLE IF NOT EXISTS admin (
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-ALTER TABLE admin 
-ADD COLUMN name VARCHAR(100) NOT NULL AFTER `id`;
 
 
 

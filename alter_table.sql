@@ -2,4 +2,4 @@ ALTER TABLE admin
 ADD COLUMN name VARCHAR(100) NOT NULL AFTER `id`;
 
 ALTER TABLE grades
-DROP COLUMN `grade_year`
+DROP COLUMN `grade_year`;
