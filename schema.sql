@@ -1,12 +1,6 @@
 CREATE DATABASE IF NOT EXISTS seraljon;
 USE seraljon;
 
-CREATE TABLE IF NOT EXISTS year_status (
-`year_status_id` INT AUTO_INCREMENT PRIMARY KEY,
-`year_status_name` ENUM('First Year', 'Second Year', 'Third Year', 'Fourth Year', 'Fifth Year',
-'Masteral', 'Doctorate') NOT NULL,
-`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
 CREATE TABLE IF NOT EXISTS institute (
 `institute_id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -21,6 +15,13 @@ CREATE TABLE IF NOT EXISTS course(
 FOREIGN KEY (institute_id) REFERENCES institute(institute_id)
 );
 
+CREATE TABLE IF NOT EXISTS section (
+`section_id` VARCHAR(20) PRIMARY KEY,
+`course_id` INT NOT NULL,
+`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+FOREIGN KEY (course_id) REFERENCES course(course_id)
+);
+
 CREATE TABLE IF NOT EXISTS students (
 `student_id` INT AUTO_INCREMENT PRIMARY KEY,
 `first_name` VARCHAR(50) NOT NULL,
@@ -28,7 +29,8 @@ CREATE TABLE IF NOT EXISTS students (
 `last_name` VARCHAR(50) NOT NULL,
 `institute_id` INT NOT NULL,
 `course_id` INT NOT NULL,
-`year_level` VARCHAR(20) NOT NULL,
+`year_status` ENUM('First Year', 'Second Year', 'Third Year', 'Fourth Year', 'Fifth Year','Masteral', 'Doctorate') NOT NULL,
+`section_id` VARCHAR(20),
 `date_of_birth` DATE NOT NULL,
 `email` VARCHAR(100) UNIQUE NOT NULL,
 `age` INT NOT NULL,
@@ -39,6 +41,7 @@ CREATE TABLE IF NOT EXISTS students (
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 FOREIGN KEY (course_id) REFERENCES course(course_id),
 FOREIGN KEY (institute_id) REFERENCES institute(institute_id)
+FOREIGN KEY (section_id) REFERENCES section(section_id)
 );
 
 CREATE TABLE IF NOT EXISTS staff (
@@ -78,11 +81,9 @@ CREATE TABLE IF NOT EXISTS grades (
 `grade` DECIMAL(3,2) NOT NULL,
 -- grade year will be deleted when altered
 `grade_year` INT NOT NULL,
-`year_status_id` INT NOT NULL,
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 FOREIGN KEY (student_id) REFERENCES students(student_id),
 FOREIGN KEY (subject_id) REFERENCES subjects(subject_id),
-FOREIGN KEY (year_status_id) REFERENCES year_status(year_status_id),
 UNIQUE KEY unique_grade (student_id, subject_id, grade_year)
 );
 
@@ -94,13 +95,7 @@ CREATE TABLE IF NOT EXISTS room(
 FOREIGN KEY (institute_id) REFERENCES institute(institute_id)
 );
 
-CREATE TABLE IF NOT EXISTS section (
-`section_id` VARCHAR(20) PRIMARY KEY,
-`section_name` VARCHAR(20) NOT NULL,
-`course_id` INT NOT NULL,
-`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-FOREIGN KEY (course_id) REFERENCES course(course_id)
-);
+
 
 CREATE TABLE IF NOT EXISTS class (
 `class_id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -125,7 +120,7 @@ CREATE TABLE IF NOT EXISTS enroll (
 `student_id` INT NOT NULL,                                                                 
 `class_id` INT NOT NULL,
 `enrollment_date` DATE NOT NULL,
-`status` ENUM('Enrolled', 'Dropped', 'Completed', 'Failed') NOT NULL,
+`status` ENUM('Enrolled', 'Dropped') NOT NULL,
 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 FOREIGN KEY (student_id) REFERENCES students(student_id),
 FOREIGN KEY (class_id) REFERENCES class(class_id),
