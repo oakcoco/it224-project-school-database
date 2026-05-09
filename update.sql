@@ -15,5 +15,4 @@ SET status = 'Resigned'
 WHERE employee_id = 10;
 
 UPDATE students SET age = age + 1;
-
 UPDATE staff SET age = age + 1;

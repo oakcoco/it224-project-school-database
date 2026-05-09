@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS students_3nf_performance (
     year_status ENUM('First Year', 'Second Year', 'Third Year', 'Fourth Year', 'Fifth Year', 'Masteral', 'Doctorate') NOT NULL,
     section_id VARCHAR(20),
     date_of_birth DATE NOT NULL,
-    -- age removed - can be calculated: TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE())
+    -- age removed - can be calculated: `TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE())`
     email VARCHAR(100) NOT NULL,
     sex ENUM('Male', 'Female', 'Others') NOT NULL,
     address TEXT NOT NULL,

@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS students (
 `section_id` VARCHAR(20),
 `date_of_birth` DATE NOT NULL,
 `email` VARCHAR(100) UNIQUE NOT NULL,
+-- age will be removed at delete.sql
 `age` INT NOT NULL,
 `sex` ENUM('Male', 'Female','Others') NOT NULL,
 `address` TEXT NOT NULL,
@@ -54,6 +55,7 @@ CREATE TABLE IF NOT EXISTS staff (
 `date_of_birth` DATE NOT NULL,
 `phone_number` VARCHAR(20) NULL,
 `email` VARCHAR(100) UNIQUE NOT NULL,
+-- age will be removed at delete.sql
 `age` INT NOT NULL,
 `sex` ENUM('Male', 'Female', 'Others') NOT NULL,
 `address` TEXT NOT NULL,
